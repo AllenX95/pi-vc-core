@@ -1,0 +1,6 @@
+node_modules/
+.tmp-build/
+.tmp-test/
+.tmp-smoke/
+.pi-vc/
+*.log
