@@ -12,3 +12,5 @@
 - Added Dream prepare/commit skeleton.
 - Added `vc-material-reader` smoke-test skill.
 - Added dependency doctor install guidance for Pi helpers, QMD, PaddleOCR, LibreOffice, PowerShell, Git, and Office COM.
+- Added bundled companion Pi package declarations for `pi-web-access` and `pi-mcp-adapter`.
+- Added third-party copyright and license notices for bundled companion packages.

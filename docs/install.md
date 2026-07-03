@@ -25,6 +25,7 @@ Recommended local environment:
 - Windows 10/11
 - PowerShell 7 (`pwsh`)
 - Microsoft Office desktop for `.doc/.ppt` conversion provider
+- bundled Pi companion packages: `pi-web-access` and `pi-mcp-adapter`
 - Python, PaddleOCR, QMD, and LibreOffice are optional
 - `fd` and `ripgrep` are recommended because Pi uses them for fast file discovery and search
 
@@ -42,6 +43,24 @@ The same information is available to the Agent through the `vc_dependency_doctor
 - current availability;
 - impact if missing;
 - Windows install commands when the dependency is installable from the command line.
+
+## Bundled Pi Companion Packages
+
+`pi-vc-core` declares two Pi packages as runtime and bundled dependencies:
+
+- `pi-web-access` provides web search, URL fetch, GitHub repository fetch, PDF extraction, and related web access tools.
+- `pi-mcp-adapter` provides MCP server discovery and MCP tool call access.
+
+When `pi-vc-core` is installed from npm or git, Pi runs npm install for package dependencies. For a local source checkout, run `/vc-doctor` or `vc_dependency_doctor` first; if the companion packages are missing, install dependencies only after explicit user approval.
+
+The companion packages can also be installed directly in Pi:
+
+```powershell
+pi install npm:pi-web-access
+pi install npm:pi-mcp-adapter
+```
+
+Third-party copyright and license information is recorded in [third-party-notices.md](third-party-notices.md).
 
 ## Recommended Windows Installs
 

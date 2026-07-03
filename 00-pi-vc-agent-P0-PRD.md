@@ -227,7 +227,7 @@ Memory 第一阶段不使用数据库作为主存储，采用 Markdown 作为 so
 
 ### 8.8 外部依赖可选降级
 
-QMD、PaddleOCR、LibreOffice、Microsoft Office COM、MCP、web-search 都应作为外部 package/provider/dependency 管理。缺失时返回清晰 warning，并尽量降级，不阻断主流程。
+QMD、PaddleOCR、LibreOffice、Microsoft Office COM 都应作为外部 provider/dependency 管理。web-search 和 MCP 通过第三方 Pi companion packages 作为 bundled dependency 集成，但仍保持第三方版权、许可和运行边界。缺失时返回清晰 warning，并尽量降级，不阻断主流程。
 
 ### 8.9 日志最小化
 
@@ -268,17 +268,17 @@ macOS / Linux:
 
 ## 10. 与 Pi 通用能力的关系
 
-P0 不自研 web-search 和 MCP。
+P0 不自研 web-search 和 MCP，但默认随 `pi-vc-core` 声明并加载第三方 Pi companion packages。
 
 ### Web Search
 
-P0 通过外部 Pi web-search / fetch-url package 使用联网能力。
+P0 通过 bundled `pi-web-access` package 使用联网能力。
 
 P0 不做 VC 搜索策略，不做来源分级，不做证据链。
 
 ### MCP
 
-P0 可通过外部 Pi MCP package 接入浏览器、数据库、GitHub、Context7、filesystem 或其他外部工具。
+P0 可通过 bundled `pi-mcp-adapter` package 接入浏览器、数据库、GitHub、Context7、filesystem 或其他外部工具。
 
 MCP 不替代 Workspace、Office、Memory 三个核心模块，尤其不得用通用 MCP filesystem 工具绕过 workspace 规则直接覆盖原始项目文件。
 

@@ -9,7 +9,9 @@
     "vc",
     "agent",
     "office",
-    "memory"
+    "memory",
+    "web-search",
+    "mcp"
   ],
   "scripts": {
     "check": "node --check scripts/check-package.mjs && npx tsc --noEmit",
@@ -20,10 +22,13 @@
     "extensions": [
       "./extensions/vc-project-workspace/index.ts",
       "./extensions/vc-office-core/index.ts",
-      "./extensions/vc-memory/index.ts"
+      "./extensions/vc-memory/index.ts",
+      "./node_modules/pi-web-access/index.ts",
+      "./node_modules/pi-mcp-adapter/index.ts"
     ],
     "skills": [
-      "./skills"
+      "./skills",
+      "./node_modules/pi-web-access/skills"
     ],
     "prompts": [
       "./prompts"
@@ -31,8 +36,14 @@
   },
   "dependencies": {
     "jszip": "^3.10.1",
-    "pdf-parse": "^2.4.5"
+    "pdf-parse": "^2.4.5",
+    "pi-mcp-adapter": "^2.10.0",
+    "pi-web-access": "^0.13.0"
   },
+  "bundledDependencies": [
+    "pi-mcp-adapter",
+    "pi-web-access"
+  ],
   "peerDependencies": {
     "@earendil-works/pi-agent-core": "*",
     "@earendil-works/pi-ai": "*",

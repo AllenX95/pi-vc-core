@@ -1,10 +1,17 @@
 # Architecture
 
-`pi-vc-core` is one Pi package with three default extensions:
+`pi-vc-core` is one Pi package with three local core extensions:
 
 1. `vc-project-workspace`
 2. `vc-office-core`
 3. `vc-memory`
+
+It also bundles two third-party Pi companion packages through `dependencies` and `bundledDependencies`:
+
+1. `pi-web-access`
+2. `pi-mcp-adapter`
+
+The companion packages provide web access and MCP bridge capabilities, but they do not replace the local workspace, Office, or memory boundaries.
 
 Each extension uses:
 

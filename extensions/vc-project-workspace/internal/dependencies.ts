@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
@@ -30,6 +31,17 @@ interface CommandSpec {
   impact: string;
   install?: DependencyCheck["install"];
 }
+
+interface PiPackageSpec {
+  id: string;
+  label: string;
+  npmPackage: string;
+  importance: DependencyImportance;
+  impact: string;
+  install?: DependencyCheck["install"];
+}
+
+const PACKAGE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
 const COMMAND_CHECKS: CommandSpec[] = [
   {
@@ -181,15 +193,41 @@ const COMMAND_CHECKS: CommandSpec[] = [
   },
 ];
 
+const PI_PACKAGE_CHECKS: PiPackageSpec[] = [
+  {
+    id: "pi-web-access",
+    label: "pi-web-access",
+    npmPackage: "pi-web-access",
+    importance: "recommended",
+    impact: "Enables Pi web search, URL fetch, GitHub repository fetch, PDF extraction, and video analysis capabilities.",
+    install: {
+      windows: ["pi install npm:pi-web-access"],
+      manual: "pi-vc-core declares pi-web-access as a bundled dependency. For a source checkout, run npm install after vc_dependency_doctor and explicit user approval.",
+    },
+  },
+  {
+    id: "pi-mcp-adapter",
+    label: "pi-mcp-adapter",
+    npmPackage: "pi-mcp-adapter",
+    importance: "recommended",
+    impact: "Enables MCP server discovery and tool calls through the Pi MCP adapter package.",
+    install: {
+      windows: ["pi install npm:pi-mcp-adapter"],
+      manual: "pi-vc-core declares pi-mcp-adapter as a bundled dependency. For a source checkout, run npm install after vc_dependency_doctor and explicit user approval.",
+    },
+  },
+];
+
 export async function runDependencyDoctor(): Promise<DependencyCheck[]> {
   const commandChecks = await Promise.all(COMMAND_CHECKS.map(checkCommand));
+  const piPackageChecks = await Promise.all(PI_PACKAGE_CHECKS.map(checkPiPackage));
   const pwsh = commandChecks.find((check) => check.id === "pwsh")?.ok ? "pwsh" : undefined;
   const powershell = pwsh ?? "powershell";
   const comChecks = await Promise.all([
     checkComProgId(powershell, "Word.Application", "ms-word-com", "Microsoft Word COM", "recommended", "Preferred local provider for .doc conversion and Word rendering."),
     checkComProgId(powershell, "PowerPoint.Application", "ms-powerpoint-com", "Microsoft PowerPoint COM", "recommended", "Preferred local provider for .ppt conversion and PowerPoint rendering."),
   ]);
-  return [...commandChecks, ...comChecks];
+  return [...commandChecks, ...piPackageChecks, ...comChecks];
 }
 
 export function formatDependencyDoctor(checks: DependencyCheck[]): string {
@@ -241,6 +279,48 @@ async function checkCommand(spec: CommandSpec): Promise<DependencyCheck> {
         : spec.install,
     };
   }
+}
+
+async function checkPiPackage(spec: PiPackageSpec): Promise<DependencyCheck> {
+  const localPackageJson = path.join(PACKAGE_ROOT, "node_modules", spec.npmPackage, "package.json");
+  if (existsSync(localPackageJson)) {
+    return {
+      id: spec.id,
+      label: spec.label,
+      importance: spec.importance,
+      ok: true,
+      detail: "bundled dependency present",
+      impact: spec.impact,
+      install: spec.install,
+    };
+  }
+
+  try {
+    const { stdout, stderr } = await runUserCommand("pi", ["list"]);
+    const output = `${stdout}\n${stderr}`.toLowerCase();
+    if (output.includes(spec.npmPackage.toLowerCase())) {
+      return {
+        id: spec.id,
+        label: spec.label,
+        importance: spec.importance,
+        ok: true,
+        detail: "installed as a Pi package",
+        impact: spec.impact,
+        install: spec.install,
+      };
+    }
+  } catch {
+    // The Pi CLI itself is reported by the pi command check.
+  }
+
+  return {
+    id: spec.id,
+    label: spec.label,
+    importance: spec.importance,
+    ok: false,
+    impact: spec.impact,
+    install: spec.install,
+  };
 }
 
 async function runUserCommand(command: string, args: string[]): Promise<{ stdout: string; stderr: string }> {
